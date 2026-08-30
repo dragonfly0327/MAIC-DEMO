@@ -1,77 +1,202 @@
-# ContinuumX Agentic Platform — Technical Tech Stack & Blueprint
+# ContinuumX Agentic Platform — MAIC Showcase & Blueprint
 
-ContinuumX is a secure, multi-tenant agentic platform designed for High-Mix Low-Volume (HMLV) smart manufacturing and semiconductor assembly. It automates the lifecycle from engineering drawings and RFQs to visual bills-of-materials (BOM) extraction, semantic parts matching, cost optimization, and automated shopfloor work instructions.
+ContinuumX is a multi-tenant, hybrid AI orchestration platform engineered for High-Mix Low-Volume (HMLV) smart manufacturing, precision cable assembly, and semiconductor fabrication. It forms an autonomous intelligence overlay on top of existing Manufacturing Execution Systems (MES) and Enterprise Resource Planning (ERP) infrastructure.
 
-This repository integrates an intelligence overlay on top of existing factory Manufacturing Execution Systems (MES) and ERPs, incorporating real-time telemetry-driven rescheduling and automated equipment diagnostics.
-
-> **ContinuumXppsLauncher**: ContinuumX Enterprise Solutions Portal for SMEs — the desktop launcher and application suite (BOM, Costing, Cycle Time, NPI, Sourcing, WI, Project Management) that ships alongside this platform.
+This repository contains the core agentic runtime, multimodal CAD drawing parsing engine, content-blind event broker, encrypted messaging SDK (`AgentComms`), real-time WebSocket fleet monitoring dashboard, and the desktop **BOM Verification & Extraction Engine**.
 
 ---
 
 ## 1. Key System Features
 
-*   **Autonomous RFQ-to-Work-Instruction Pipeline**: Converts PDF schematics and bills-of-materials into optimized procurement pathways and assembly steps.
-*   **Hybrid AI Data Routing**: Routes public data to fast cloud LLMs (Gemini Flash) and sensitive customer drawing IP to local edge VLM nodes (Llama-3-Vision).
-*   **Closed-Loop Telemetry & Rescheduling**: Ingests real-time machine sensors (OPC-UA/MQTT) and updates manufacturing schedules dynamically via a Mixed-Integer Linear Programming (MILP) solver when outages or PO rescheduling events happen.
-*   **Point-of-Failure Isolation Contract**: Implements a strict boundary contract between teams using a single `transaction_uuid` context state in PostgreSQL.
+*   **Autonomous Blueprint-to-BOM Extraction**: Employs vision-language models (VLMs) and an Evidence Graph lineage schema to extract Title Blocks, connector tables, wire gauges, and terminal codes directly from PDF drawings.
+*   **Hybrid AI Data Routing**: Routes public/commercial queries to cloud models (Gemini Flash) while keeping sensitive engineering CAD blueprints isolated on local edge nodes.
+*   **Encrypted Inter-Agent Communication**: Client-side Fernet envelope encryption protects message contents while exposing cleartext routing headers for broker telemetry and audit tracking.
+*   **Human-in-the-Loop (HITL) Validation Gates**: Autonomous execution pauses safely at critical thresholds (e.g. MOQ assignment, gross margin sign-offs) for operator review.
+*   **Live Fleet Observability**: WebSocket-driven monitoring dashboard displaying live agent status cards, CPU/RAM telemetry gauges, and an append-only event stream.
 
 ---
 
-## 2. Platform Planned Tech Stack
+## 2. Platform Architecture Overview
 
-The architecture is partitioned into frontend staging, backend logical services, data context memory, security firewalls, and deployment orchestrations.
+```mermaid
+flowchart TD
+    subgraph ClientLayer ["1. Client & Staging Layer"]
+        Launcher["ContinuumX Desktop Portal\n(BOM Extraction & Verification Engine)"]
+        Dashboard["Fleet Monitoring Dashboard\n(WebSocket Live UI: 127.0.0.1:8000)"]
+    end
 
-| Stack Layer | Technologies & Tools | Platform Role & Advantage | Responsibility |
-| :--- | :--- | :--- | :--- |
-| **Front-End Portal** | • Next.js (React)<br>• Vanilla CSS<br>• HTML5 Semantic tags | Renders the staging dashboard showing side-by-side BOM cards, price diffs, confidence scores, and real-time execution logs. | **Team 2** (UI Design)<br>**Team 1** (UAT feedback) |
-| **Backend Core** | • Python 3.10+<br>• FastAPI / Flask Web Framework | Powers stateless logic microservices and handles multi-tenant JSON payloads. | **Team 2** (Logic)<br>**Team 3** (APIs/Routing) |
-| **Database & Search** | • PostgreSQL 15+<br>• `pgvector` extension<br>• JSONB memory state columns | pgvector runs cosine similarity queries (> 0.85 threshold) for semantic part matching. JSONB stores active session states. | **Team 3** (Schema & RLS)<br>**Team 2** (Query logic) |
-| **AI Orchestration** | • Gemini 3.5 Flash (Cloud API)<br>• Llama-3-Vision (Local GPU)<br>• Embeddings & RAG pipelines | Gemini Flash acts as the fast reasoning brain. Llama-3-Vision parses engineering schematics locally on edge nodes. | **Team 2** (System prompts)<br>**Team 3** (Router & Infra) |
-| **Optimization Math** | • PuLP Solver Engine<br>• SciPy Linear Programming | Mixed-Integer Linear Programming (MILP) solver optimizing total sourcing costs under MOQ constraints and machine capacities. | **Team 2** (MILP models) |
-| **Document Compiler** | • WeasyPrint / ReportLab | Generates customer quotation files and IPC-A-620 work instructions directly to PDFs, bypassing Excel dependencies. | **Team 2** (PDF engines) |
-| **Security & Isolation** | • Postgres Row-Level Security<br>• LLM Security Firewall<br>• Tenant JWT Tokens | RLS prevents cross-tenant data leaks. LLM firewall blocks prompt-injection attempts and outgoing PII leakage. | **Team 3** (Security policies) |
-| **Event Logging** | • Redis Broker Queue<br>• Event Backlog Streams | Handles asynchronous events and error backlogs mapped to the transaction UUID for quick diagnostics. | **Team 3** (Broker setup)<br>**Team 2** (Service error pubs) |
-| **Edge IoT Integration** | • OPC-UA Protocols<br>• MQTT Telemetry Listeners | Streams live crimper/cutter metrics (heat, vibration, crimp force) to predict tooling wear and trigger auto-rerouting. | **Team 3** (Telemetry agent)<br>**Team 2** (Cost estimator) |
-| **ERP / MES Gateway** | • REST API Webhooks<br>• Direct SQL database writes<br>• Headless RPA Workers | Connects to Siemens, SAP, Oracle, or a mock ERP endpoint `/mock-erp` to push work orders or check schedules. | **Team 3** (Gateway integrations) |
-| **Infrastructure & CI** | • Docker & Docker-Compose<br>• Systemd Daemons<br>• Ansible/Terraform | Manages container reboots, edge auto-startup on boot, and automated rolling rollbacks if health probes fail. | **Team 3** (DevOps / AIOps) |
+    subgraph SecurityLayer ["2. Security & Gateway Layer"]
+        AuthMgr["Auth Manager & RBAC Engine\n(auth_manager.py)"]
+        PromptGuard["Prompt Guard & Firewall\n(agents/prompt_guard.py)"]
+        CryptoLayer["Fernet Payload Encryption\n(platform/app/security/crypto.py)"]
+    end
 
----
+    subgraph AgentLayer ["3. Autonomous AI Fleet"]
+        BrainAgent["Brain Router & Query Engine\n(agents/brain_router.py)"]
+        DrawingAgent["Drawing Vision Agent\n(agents/drawing_agent.py)"]
+        MM_Extractor["Multimodal Document Extractor\n(agents/multimodal_extractor.py)"]
+        EmailAgent["Email Ingestion & Classifier\n(agents/email_fetcher.py)"]
+        Bridge["Desktop Fleet Sync Bridge\n(agents/platform_bridge.py)"]
+    end
 
-## 3. Implemented Code
+    subgraph BrokerLayer ["4. Async Broker & Memory Layer"]
+        EventBroker["Content-Blind Event Broker\n(platform/app/broker/event_broker.py)"]
+        AgentRegistry["Agent Registry & Sweeper\n(platform/app/agents/registry.py)"]
+        ApprovalQueue["HITL Approval Store\n(platform/app/hitl/approvals.py)"]
+        EventStream[("Persistent Event Stream\nmaster_backlog_events.jsonl")]
+    end
 
-Runnable Team 3 code lives in [platform/](platform/). See [platform/README.md](platform/README.md) for full setup and architecture.
+    subgraph MicroserviceLayer ["5. Verification & Execution Engine"]
+        BOMEngine["BOM Verification Engine & Wizard\n(ref/BOM/)"]
+        KnowledgeBase["Learned Column Mappings & Profiles\n(knowledge_base/)"]
+    end
 
-**Phase 1 (implemented): Agent Monitoring Dashboard + encrypted agent-to-agent communication.**
-
-*   **Event Broker** ([platform/app/broker/event_broker.py](platform/app/broker/event_broker.py)) - async pub/sub exposing `publish(channel, payload)` / `subscribe(channel)`, JSONL-persisted backlog, isolated error queues.
-*   **Agent Registry** ([platform/app/agents/registry.py](platform/app/agents/registry.py)) - register/heartbeat with self-reported CPU/memory, task counts, and a background sweeper that flips stale agents to `offline` (drives the "server down" signal).
-*   **AgentComms** ([platform/app/agents/comms.py](platform/app/agents/comms.py)) - reusable messaging layer Team 2's agents import; encrypts the payload body client-side (`app/security/crypto.py`) while leaving the envelope metadata cleartext so the broker can route and the dashboard can monitor.
-*   **Monitoring Dashboard** ([platform/dashboard/](platform/dashboard/)) - live agent health cards, resource meters, fleet status chart, error telemetry, live event log, and a human-in-the-loop approval queue.
-*   **Demo Agent** ([platform/agents/demo_agent.py](platform/agents/demo_agent.py)) - integration template exchanging encrypted `hello -> hello_ack -> byebye`.
-
-Quick start:
-
-```bash
-cd platform
-python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app        # dashboard at http://127.0.0.1:8000/
+    %% Connections
+    Launcher --> AuthMgr
+    Launcher --> BOMEngine
+    Launcher --> BrainAgent
+    Dashboard <--> EventBroker
+    
+    BrainAgent --> PromptGuard
+    EmailAgent --> MM_Extractor
+    MM_Extractor --> DrawingAgent
+    DrawingAgent --> BOMEngine
+    
+    Bridge <--> CryptoLayer
+    CryptoLayer <--> EventBroker
+    EventBroker --> AgentRegistry
+    EventBroker --> ApprovalQueue
+    EventBroker --> EventStream
+    
+    BOMEngine <--> KnowledgeBase
 ```
 
-Phases 2-3 (Postgres schema + RLS, tenant JWT middleware, LLM firewall, ERP/MES gateway, Docker orchestration + rollback, remote diagnostics) remain planned in [implementation_plan_team3.md](AgenticPlatform/implementation_plan_team3.md).
+---
+
+## 3. Starting the Platform Server & Live Dashboard
+
+The platform backend is powered by FastAPI and provides an asynchronous event broker, health sweeper, and WebSocket dashboard.
+
+### 3.1 Environment Setup
+```bash
+# 1. Create and activate virtual environment
+python -m venv .venv
+
+# On Windows (PowerShell):
+.venv\Scripts\Activate.ps1
+# On Linux / macOS:
+source .venv/bin/activate
+
+# 2. Install dependencies
+pip install -r platform/requirements.txt
+pip install matplotlib openpyxl pandas pydantic fastapi uvicorn cryptography
+```
+
+### 3.2 Launch the FastAPI Platform Server
+From your first terminal:
+```bash
+cd platform
+uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+```
+*   **Live Web Dashboard**: Open **`http://127.0.0.1:8000/`** in your browser.
+*   Displays real-time fleet health cards, CPU/RAM telemetry meters, encrypted message streams, and the Human-in-the-Loop approval queue.
+
+### 3.3 Connect the Desktop Fleet (Platform Sync Bridge)
+In a second terminal:
+```bash
+python -m agents.platform_bridge
+```
+*   Registers all fleet agents (`Brain`, `BOM`, `Sourcing`, `Cycle Time`, `Costing`, `NPI`, `WI`) with the central server.
+*   Watch `http://127.0.0.1:8000/` update in real-time as agent status badges flip to **`Online`** with active telemetry.
 
 ---
 
-## 4. Project Documentation Directory
+## 4. End-to-End Mock Testing Guide
 
-To learn more about the implementation guidelines, governance policies, and team tasks, refer to the documents in the [AgenticPlatform](file:///d:/ContinuumX%20Internal/AgenticPlatform/AgenticPlatform) folder:
+Follow these testing scenarios to demonstrate the entire agentic pipeline:
 
-*   **[Master Implementation Plan](file:///d:/ContinuumX%20Internal/AgenticPlatform/AgenticPlatform/implementation_plan.md)**: Coordinates cross-functional execution.
-*   **[Architecture Flowcharts & Diagrams](file:///d:/ContinuumX%20Internal/AgenticPlatform/AgenticPlatform/flowchart.md)**: Visualizes the end-to-end data pipeline, data privacy routing, sequence logs, and deployment profiles.
-*   **[Platform Overview](file:///d:/ContinuumX%20Internal/AgenticPlatform/AgenticPlatform/platform_overview.md)**: High-level system architecture, team collaboration matrix, and fail-safe recovery rules.
-*   **[Corporate AI Governance Guidelines](file:///d:/ContinuumX%20Internal/AgenticPlatform/AgenticPlatform/ai_governance_guidelines.md)**: Details the safety checkpoints, validation gates, and compliance trails.
-*   **[Team 1: Business Operations & Product Mapping](file:///d:/ContinuumX%20Internal/AgenticPlatform/AgenticPlatform/implementation_plan_team1.md)**: Customer requirement schemas and Pilot shadow mode templates.
-*   **[Team 2: Sourcing, Costing, & Staging UI](file:///d:/ContinuumX%20Internal/AgenticPlatform/AgenticPlatform/implementation_plan_team2.md)**: Details the VLM parser, semantic matcher, MILP solver, and React UI layout.
-*   **[Team 3: Infrastructure, Database, & Security](file:///d:/ContinuumX%20Internal/AgenticPlatform/AgenticPlatform/implementation_plan_team3.md)**: Details event queues, RLS, middleware, WebSocket remote diagnostics, and CI/CD rollbacks.
-*   **[30-Day Project Timeline](file:///d:/ContinuumX%20Internal/AgenticPlatform/AgenticPlatform/timeline.md)**: Development milestones and weekly checkpoint gates.
-*   **[Pitch Deck Summary](file:///d:/ContinuumX%20Internal/AgenticPlatform/AgenticPlatform/pitch_deck_summary.md)**: Structured presentation outline for direct NotebookLM import.
+### Scenario A: Encrypted Agent-to-Agent Messaging Demo
+Demonstrates client-side encryption (`platform/app/security/crypto.py`) where message bodies are encrypted with Fernet and only envelope headers are routed by the broker:
+
+1. **Terminal A** (Start Responder Agent B):
+   ```bash
+   python -m platform.agents.demo_agent --id agent_b --peer agent_a
+   ```
+2. **Terminal B** (Start Initiator Agent A):
+   ```bash
+   python -m platform.agents.demo_agent --id agent_a --peer agent_b --initiate
+   ```
+3. **Verification**:
+   - Both agents execute the encrypted handshake: `hello` ➡️ `hello_ack` ➡️ `byebye`.
+   - The Web Dashboard at `http://127.0.0.1:8000/` records each transaction in the live event stream.
+
+---
+
+### Scenario B: Natural Language AI Brain & Chart Analytics
+Demonstrates natural language database querying and dynamic Matplotlib chart generation via the Central Brain Router:
+
+```bash
+python -c "
+import sys
+sys.stdout.reconfigure(encoding='utf-8')
+from agents.brain_router import BrainRouter, detect_chart_intent, generate_rfq_chart
+
+r = BrainRouter()
+
+# 1. Natural Language System Status Query
+print('=== 1. System Overview ===')
+print(r.answer_system_query('What is the system status?'))
+
+# 2. Stage Filtering Query
+print('\n=== 2. BOM Stage RFQs ===')
+print(r.answer_system_query('Which RFQs are in BOM Verification?'))
+
+# 3. Chart Generation Engine
+print('\n=== 3. Chart Generation ===')
+intent = detect_chart_intent('show me the stage distribution pie chart')
+fig = generate_rfq_chart(intent)
+print('Generated Figure:', type(fig))
+"
+```
+
+---
+
+### Scenario C: Desktop Portal & BOM Verification Engine
+Demonstrates the desktop enterprise portal with Role-Based Access Control (RBAC) and the AI BOM extraction wizard:
+
+```bash
+python main.py
+# Or launch directly via:
+python launcher.py
+```
+
+#### Demo Login Credentials:
+| Username | Password | Role | Access Level |
+| :--- | :--- | :--- | :--- |
+| **`admin`** | **`admin123`** | **System Administrator** | **Full Access** (BOM Verification Engine + Admin Portal) |
+| **`sysadmin`** | **`password123`** | **System Administrator** | **Full Access** (BOM Verification Engine + Admin Portal) |
+| **`engineer`** | **`password123`** | **Engineering** | **BOM Verification & Extraction Engine** |
+| **`sourcing`** | **`password123`** | **Sourcing** | **BOM Verification & Extraction Engine** |
+| **`costing`** | **`password123`** | **Costing** | **BOM Verification & Extraction Engine** |
+
+---
+
+### Scenario D: Automated Test Suites
+Run the automated test suites to validate all components:
+
+```bash
+# 1. Run Platform Core Unit Tests
+python -c \"import sys; sys.path.insert(0, 'platform'); from platform.tests.test_crypto import test_roundtrip; print('Platform crypto verified!')\"
+
+# 2. Run End-to-End Email Ingestion, Multimodal Extraction, & Drawing Parser Pipeline
+python test_email_rfq_pipeline.py
+```
+
+---
+
+## 5. Architectural Documents
+
+*   **[Technical Architecture Document](TECHNICAL_ARCHITECTURE_DOCUMENT.md)**: Full production architecture, agent specifications, security model, and implementation gap audit.
+*   **[Hackathon Technical Blueprint (PDF)](HACKATHON_TECHNICAL_ARCHITECTURE.pdf)**: Pitch-ready executive architecture document.
+*   **[Agent Tool Registry Audit](docs/AGENT_TOOL_REGISTRY_AUDIT.md)**: 5-tier safe execution tool catalog and permission matrix.
+*   **[Orchestrator Design](docs/ORCHESTRATOR_DESIGN.md)**: State machine, dependency graph, and approval gate flow.

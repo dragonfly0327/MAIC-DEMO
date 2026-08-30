@@ -1,0 +1,176 @@
+{
+    "customer_mappings": {
+        "ABC LLC": {
+            "headers_mapping": {
+                "ITEM_NUM": "Part",
+                "ITEM_DESC": "Description",
+                "REQ_QTY": "Qty",
+                "MEASURE_UNIT": "UOM",
+                "MFG_NAME": [
+                    "MFG_NAME"
+                ],
+                "MFG_PART": [
+                    "MFG_PART"
+                ]
+            },
+            "special_columns": {
+                "Assy #": {
+                    "method": "fixed",
+                    "value": "A01"
+                }
+            },
+            "commodity": "Wire Harness",
+            "updated_at": "2026-08-10 22:27:49"
+        },
+        "Beauty": {
+            "headers_mapping": {
+                "Part": "Part",
+                "Description": "Description",
+                "Qty": "Qty",
+                "UOM": "UOM",
+                "Comp Level": "Line Item",
+                "MFR": [
+                    "MFR"
+                ],
+                "MPN": [
+                    "MPN"
+                ]
+            },
+            "special_columns": {
+                "Assy #": {
+                    "method": "map",
+                    "source_column": "Assy #"
+                },
+                "Assy Model": {
+                    "method": "map",
+                    "source_column": "Assy Model"
+                },
+                "Assy Rev": {
+                    "method": "map",
+                    "source_column": "Assy Rev"
+                }
+            },
+            "commodity": "Wire Harness",
+            "updated_at": "2026-08-13 19:30:13"
+        },
+        "CUST-123": {
+            "headers_mapping": {
+                "Part": "Part",
+                "Description": "Description",
+                "Qty": "Qty",
+                "UOM": "UOM",
+                "Comp Level": "Line Item",
+                "MFR": "MFR",
+                "MPN": "MPN"
+            },
+            "special_columns": {
+                "Assy #": {
+                    "method": "map",
+                    "source_column": "Assy #"
+                },
+                "Assy Model": {
+                    "method": "map",
+                    "source_column": "Assy Model"
+                },
+                "Assy Rev": {
+                    "method": "map",
+                    "source_column": "Assy Rev"
+                }
+            },
+            "commodity": "Wire Harness",
+            "updated_at": "2026-08-13 19:57:18"
+        },
+        "CUST-456": {
+            "headers_mapping": {
+                "Part": "Part",
+                "Description": "Description",
+                "QTY": "Qty",
+                "UOM": "UOM",
+                "Line": "Line Item",
+                "MFR": [
+                    "MFR"
+                ],
+                "MPN": [
+                    "MPN"
+                ]
+            },
+            "special_columns": {
+                "Assy #": {
+                    "method": "map",
+                    "source_column": "Assy#"
+                },
+                "Assy Model": {
+                    "method": "map",
+                    "source_column": "Assy Model"
+                },
+                "Assy Rev": {
+                    "method": "map",
+                    "source_column": "Assy Rev"
+                }
+            },
+            "commodity": "Wire Harness",
+            "updated_at": "2026-08-29 18:11:53"
+        },
+        "CUST-C155": {
+            "headers_mapping": {
+                "Part": "Part",
+                "Description": "Description",
+                "QTY": "Qty",
+                "UOM": "UOM",
+                "Line": "Line Item",
+                "MFR": [
+                    "MFR"
+                ],
+                "MPN": [
+                    "MPN"
+                ]
+            },
+            "special_columns": {
+                "Assy #": {
+                    "method": "map",
+                    "source_column": "Assy#"
+                },
+                "Assy Model": {
+                    "method": "map",
+                    "source_column": "Assy Model"
+                },
+                "Assy Rev": {
+                    "method": "map",
+                    "source_column": "Assy Rev"
+                }
+            },
+            "commodity": "Wire Harness",
+            "updated_at": "2026-08-29 20:24:06"
+        }
+    },
+    "global_header_aliases": {
+        "PART NO": "Part",
+        "PART NO.": "Part",
+        "PART NUMBER": "Part",
+        "ITEM NO": "Part",
+        "ITEM NO.": "Part",
+        "ITEM CODE": "Part",
+        "BOM DESCRIPTION": "Description",
+        "ITEM DESCRIPTION": "Description",
+        "PART DESCRIPTION": "Description",
+        "QTY": "Qty",
+        "QUANTITY": "Qty",
+        "QTY/ASSY": "Qty",
+        "UOM": "UOM",
+        "UM": "UOM",
+        "UNIT OF MEASURE": "UOM",
+        "LINE ITEM": "Line Item",
+        "LINE": "Line Item",
+        "ITEM #": "Line Item",
+        "BOM LEVEL": "Line Item",
+        "ITEM_NUM": "Part",
+        "ITEM_DESC": "Description",
+        "REQ_QTY": "Qty",
+        "MEASURE_UNIT": "UOM",
+        "PART": "Part",
+        "DESCRIPTION": "Description",
+        "COMP LEVEL": "Line Item",
+        "MFR": "MFR",
+        "MPN": "MPN"
+    }
+}

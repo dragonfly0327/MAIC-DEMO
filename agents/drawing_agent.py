@@ -30,17 +30,74 @@ from agents.evidence_schema import ResolutionType, make_evidence, ConflictCandid
 
 
 
+USER_BLACKLIST_FILE = os.path.join(
+    os.environ.get('LOCALAPPDATA', os.path.expanduser('~')),
+    'ContXs', 'learned_patterns', 'user_category_blacklist.json'
+)
+
+def get_user_category_blacklist(category=None):
+    """Loads category-keyed user learned blacklist. If category is specified, returns set of strings for that category."""
+    data = {
+        "MPN": set(),
+        "PART_NUMBER": set(),
+        "MANUFACTURER": set(),
+        "SPECIFICATION": set(),
+        "DESCRIPTION": set(),
+        "TITLE_BLOCK": set()
+    }
+    try:
+        if os.path.exists(USER_BLACKLIST_FILE):
+            with open(USER_BLACKLIST_FILE, 'r', encoding='utf-8') as f:
+                raw = json.load(f)
+                if isinstance(raw, dict):
+                    for k, v in raw.items():
+                        if isinstance(v, list):
+                            data[k.upper()] = {str(item).lower().strip() for item in v if item}
+    except Exception:
+        pass
+    if category:
+        return data.get(category.upper(), set())
+    return data
+
+def add_user_category_blacklist(category, terms):
+    """Appends new user-blacklisted terms under the specified category and persists to JSON."""
+    if not category or not terms:
+        return
+    cat = category.upper()
+    current_data = get_user_category_blacklist()
+    if cat not in current_data:
+        current_data[cat] = set()
+    
+    if isinstance(terms, (list, set, tuple)):
+        for t in terms:
+            if t and str(t).strip():
+                current_data[cat].add(str(t).lower().strip())
+    elif isinstance(terms, str) and terms.strip():
+        current_data[cat].add(terms.lower().strip())
+
+    try:
+        os.makedirs(os.path.dirname(USER_BLACKLIST_FILE), exist_ok=True)
+        serializable = {k: sorted(list(v)) for k, v in current_data.items()}
+        with open(USER_BLACKLIST_FILE, 'w', encoding='utf-8') as f:
+            json.dump(serializable, f, indent=2)
+    except Exception as ex:
+        print(f"[DrawingVisionAgent] Failed to save user blacklist: {ex}")
+
+
+from agents.domain_taxonomy import TaxonomyEngine
+
+
 class DrawingVisionAgent:
     """
     Intelligent Engineering Drawing Agent.
     Specialized in parsing CAD drawings, PDF blueprints, Title Blocks, and BOM tables.
     """
     
-    KNOWN_MFRS = [
+    KNOWN_MFRS = list({m.upper() for m in TaxonomyEngine.manufacturers.keys()}.union({
         "MOLEX", "SICK", "FCI", "AMPHENOL", "MH CONNECTORS", "HEINIGER",
         "JST", "ALPHA WIRE", "ALPHA", "TYCO", "TE CONNECTIVITY", "TE",
-        "DELPHI", "YAZAKI", "SUMITOMO", "HIROSE", "HRS", "PANDUIT", "3M", "TECAN"
-    ]
+        "DELPHI", "YAZAKI", "SUMITOMO", "HIROSE", "HRS", "PANDUIT", "3M", "TECAN", "DELTRON"
+    }))
 
     UOM_NORMALIZATION = {
         "mm": "MM",
@@ -49,24 +106,14 @@ class DrawingVisionAgent:
         "m": "M",
         "meter": "M",
         "meters": "M",
-        "mtr": "M",
-        "ft": "FT",
-        "feet": "FT",
-        "foot": "FT",
-        "in": "IN",
-        "inch": "IN",
-        "inches": "IN",
-        "\"": "IN",
+        "pc": "PC",
+        "pcs": "PC",
+        "piece": "PC",
+        "pieces": "PC",
         "ea": "EA",
         "each": "EA",
-        "pc": "PCS",
-        "pcs": "PCS",
-        "piece": "PCS",
-        "pieces": "PCS",
         "set": "SET",
-        "sets": "SET",
-        "roll": "ROLL",
-        "reel": "REEL"
+        "cm": "CM"
     }
 
     def __init__(self, config_path=None):
@@ -110,27 +157,95 @@ class DrawingVisionAgent:
 
     MPN_BLACKLIST = {
         "number and name", "number and nam", "part number and name", "part number", "part name",
-        "component", "description", "order code", "tecan-sap", "tecan sap", "sap", "item",
-        "rev", "qty", "uom", "drawing", "none", "n/a", "null", "undefined", "order", "code"
+        "component", "description", "order code", "ordercode", "tecan-sap", "tecan sap", "sap", "item",
+        "rev", "qty", "uom", "drawing", "none", "n/a", "null", "undefined", "order", "code",
+        "terminal", "crimp", "contact", "housing", "connector", "cable", "wire", "lug", "ferrite",
+        "pin", "pin4", "socket", "plug", "header", "screw", "nut", "washer", "sleeve", "tube",
+        "tie", "tape", "label", "labeled", "active", "microfit", "usa-100", "usa-108", "usa-108-",
+        "order no", "product name", "product literature", "literature order no", "literature",
+        "10mm", "24v", "deltron", "oem", "standard", "d-sub", "dsub", "buchse", "stecker", "crimp-buchse",
+        "and", "free", "type", "definitions", "sign", "date", "page", "filename", "tolerance", "length", "rohs"
     }
 
     @classmethod
-    def sanitize_mpn(cls, raw_mpn):
-        """Sanitizes raw MPN string, rejecting header labels, column titles, and non-part noise."""
+    def sanitize_mpn(cls, raw_mpn, mfr=""):
+        """Sanitizes raw MPN string, normalizing manufacturer-specific part codes and handling customer punctuation variants."""
         if not raw_mpn:
             return ""
         clean = str(raw_mpn).strip()
-        clean_low = clean.lower()
-        if clean_low in cls.MPN_BLACKLIST:
+        # Remove common prefixes like 'Order Code:', 'Bestell-Nr:', 'Typ:'
+        clean = re.sub(r'^(?:Order\s*Code|Order\s*No|Ordercode|Bestell-?Nr|Part-?No|Art\.?-?Nr|Catalog\s*No|Typ\s*Hersteller|Typ|MPN)[\s:]+', '', clean, flags=re.I).strip()
+        
+        # Reject punctuation-only filler (e.g. ----------, ---, ____, ***)
+        if re.match(r'^[\-\_\.\*\s\/]+$', clean):
             return ""
-        for bl in cls.MPN_BLACKLIST:
+
+        clean_low = clean.lower()
+        if clean_low in cls.MPN_BLACKLIST or clean_low in get_user_category_blacklist("MPN"):
+            return ""
+        for bl in cls.MPN_BLACKLIST.union(get_user_category_blacklist("MPN")):
             if clean_low == bl or clean_low.startswith(f"{bl}:") or clean_low.startswith(f"{bl} "):
                 return ""
-        if len(clean) < 2 or len(clean) > 40:
+        if len(clean) < 2 or len(clean) > 45:
             return ""
         if any(bad in clean_low for bad in ["number and nam", "part number and name"]):
             return ""
+
+        # Manufacturer-specific and universal format standardizers
+        # 1. 3-segment dashed codes (e.g. Molex 430-25-0600 -> 43025-0600, 500-79-8000 -> 50079-8000, 510-21-0600 -> 51021-0600)
+        m3 = re.match(r'^(\d{3})-(\d{2})-(\d{4})$', clean)
+        if m3:
+            return f"{m3.group(1)}{m3.group(2)}-{m3.group(3)}"
+
+        # 2. 2-segment dashed codes (e.g. 43025-0600, 50079-8000, 51021-0600, 43030-0001)
+        m2 = re.match(r'^(\d{5})-(\d{4})$', clean)
+        if m2:
+            return f"{m2.group(1)}-{m2.group(2)}"
+
+        # 3. Space separated numeric catalog codes (e.g. Heiniger 999 890 063 -> 999890063)
+        if re.match(r'^\d{2,4}\s+\d{2,4}\s+\d{2,4}$', clean):
+            return re.sub(r'\s+', '', clean)
+
+        # 4. 10-digit zero-prefixed or 9-digit numeric codes (e.g. 0430300004 -> 43030-0004, 0430250600 -> 43025-0600)
+        m10 = re.match(r'^0(\d{5})(\d{4})$', clean)
+        if m10:
+            return f"{m10.group(1)}-{m10.group(2)}"
+        m9 = re.match(r'^(\d{5})(\d{4})$', clean)
+        if m9:
+            return f"{m9.group(1)}-{m9.group(2)}"
+
         return clean
+
+    @classmethod
+    def is_fuzzy_part_match(cls, bom_pn: str, cand_text: str, threshold: float = 0.85) -> bool:
+        """
+        Computes multi-strategy similarity matching between a customer BOM part number and any text/filename.
+        1. Direct substring inclusion (ignoring case)
+        2. Normalized alphanumeric matching (stripping '-', '.', '/', spaces, leading zeros)
+        3. Levenshtein / SequenceMatcher ratio >= threshold (0.85)
+        """
+        if not bom_pn or not cand_text:
+            return False
+        b_clean = str(bom_pn).strip().upper()
+        c_clean = str(cand_text).strip().upper()
+        if len(b_clean) < 3:
+            return False
+
+        # 1. Direct Substring
+        if b_clean in c_clean or c_clean in b_clean:
+            return True
+
+        # 2. Normalized alphanumeric (removes punctuation, dashes, dots, and leading zeros)
+        b_norm = re.sub(r'[^A-Z0-9]', '', b_clean).lstrip('0')
+        c_norm = re.sub(r'[^A-Z0-9]', '', c_clean).lstrip('0')
+        if b_norm and c_norm:
+            if b_norm == c_norm or b_norm in c_norm or c_norm in b_norm:
+                return True
+
+        # 3. SequenceMatcher fuzzy similarity ratio
+        from difflib import SequenceMatcher
+        ratio = SequenceMatcher(None, b_norm, c_norm).ratio()
+        return ratio >= threshold
 
     @classmethod
     def normalize_uom(cls, raw_uom):
@@ -555,37 +670,69 @@ class DrawingVisionAgent:
         items = []
         existing_parts = set()
 
-        # Order Codes + SAP numbers (e.g. Molex 51021-0400 -> TECAN-SAP: 30063429)
-        oc_matches = re.finditer(r'(?:Order\s*Code|Ordercode|Order-Code|MFR\s*Part)[:\s]+([^\n\r]+)[\s\S]*?TECAN-SAP[:\s]+([0-9]{7,10})', text, re.I)
-        for ocm in oc_matches:
-            code = ocm.group(1).strip()
-            sap = ocm.group(2).strip()
+        # Order Codes + SAP numbers anchored by TECAN-SAP: <part_number>
+        sap_matches = re.finditer(r'((?:[^\n\r]+\n){1,6})[^\n\r]*?(?:TECAN-SAP|SAP|Part\s*No)[:\s]*([0-9]{7,10})', text, re.I)
+        known_mfrs = {"molex", "fci", "sick", "te", "tyco", "jst", "amphenol", "hirose", "samtec", "panduit", "harting", "phoenix", "wago", "lapp", "helukabel", "alpha wire", "heiniger", "weidmuller", "3m"}
+
+        for sm in sap_matches:
+            block_header = sm.group(1)
+            sap = sm.group(2).strip()
             if sap in existing_parts or len(sap) < 7:
                 continue
-            mfr, mpn = "", code
-            mfr_m = re.match(r'^(Molex|FCI|Sick|TE|Tyco|JST|Amphenol|Hirose|Samtec|Panduit|Harting|Phoenix|Wago|Lapp|Helukabel|Alpha\s*Wire|Heiniger)\s+(.*)', code, re.I)
-            if mfr_m:
-                mfr = mfr_m.group(1).strip()
-                mpn = mfr_m.group(2).strip()
-            
-            clean_mpn = self.sanitize_mpn(mpn)
-            if not clean_mpn and not mfr:
-                # If code is invalid or in blacklist, do not treat as MPN
-                clean_mpn = ""
 
-            desc_label = f"Component ({code})" if clean_mpn or mfr else f"Component {sap}"
+            block_lines = [l.strip() for l in block_header.split('\n') if l.strip()]
+            mfr = ""
+            code = ""
+            desc_label = ""
+
+            # Scan from bottom up for the actual Order Code (skipping short prefix headers like 'Order Code 10')
+            for line in reversed(block_lines):
+                oc_m = re.search(r'(?:Order\s*Code|Ordercode|Order-Code|MFR\s*Part|Bestell-?Nr|Part-?No|Catalog\s*No)[:\s]*([^\n\r]+)', line, re.I)
+                if oc_m:
+                    cand_c = oc_m.group(1).strip()
+                    if len(cand_c) >= 4 and not code:
+                        code = cand_c
+
+            # Scan lines for manufacturer
+            for line in block_lines:
+                line_low = line.lower()
+                for km in known_mfrs:
+                    if km in line_low:
+                        mfr = km.title() if km != "3m" else "3M"
+                        if mfr in ("Te", "Tyco"):
+                            mfr = "TE Connectivity / Tyco"
+                        break
+                if mfr: break
+
+            # If no explicit MFR line, check if code has MFR prefix
+            if not mfr and code:
+                mfr_m = re.match(r'^(Molex|FCI|Sick|TE|Tyco|JST|Amphenol|Hirose|Samtec|Panduit|Harting|Phoenix|Wago|Lapp|Helukabel|Alpha\s*Wire|Heiniger|3M)\s+(.*)', code, re.I)
+                if mfr_m:
+                    mfr = mfr_m.group(1).strip()
+                    code = mfr_m.group(2).strip()
+
+            # Description is the non-MFR, non-OrderCode line
+            for line in block_lines:
+                line_low = line.lower()
+                if "order code" not in line_low and "sap" not in line_low and (not mfr or mfr.lower() not in line_low) and len(line) >= 3:
+                    desc_label = line
+                    break
+
+            clean_mpn = self.sanitize_mpn(code, mfr=mfr)
+            final_desc = desc_label if desc_label else (f"Component ({code})" if clean_mpn or mfr else f"Component {sap}")
+
             items.append({
                 "line_item": len(items) + 1,
                 "part_number": sap,
-                "description": desc_label,
-                "mfr": mfr,
-                "mpn": clean_mpn or sap,
+                "description": final_desc,
+                "mfr": mfr or "Unknown",
+                "mpn": clean_mpn,
                 "qty": 1,
                 "uom": "EA",
                 "evidence": {
-                    "part": self._create_evidence_field(sap, ResolutionType.DIRECT, doc_name, zone="COMPONENT_CALLOUT", snippet=ocm.group(0)),
-                    "mpn": self._create_evidence_field(clean_mpn or sap, ResolutionType.DIRECT if clean_mpn else ResolutionType.NOT_AVAILABLE, doc_name, zone="COMPONENT_CALLOUT", snippet=code),
-                    "mfr": self._create_evidence_field(mfr, ResolutionType.DIRECT if mfr else ResolutionType.NOT_AVAILABLE, doc_name, zone="COMPONENT_CALLOUT", snippet=mfr),
+                    "part": self._create_evidence_field(sap, ResolutionType.DIRECT, doc_name, zone="COMPONENT_CALLOUT", snippet=sm.group(0)),
+                    "mpn": self._create_evidence_field(clean_mpn, ResolutionType.DIRECT if clean_mpn else ResolutionType.NOT_AVAILABLE, doc_name, zone="COMPONENT_CALLOUT", snippet=code),
+                    "mfr": self._create_evidence_field(mfr, ResolutionType.DIRECT if mfr else ResolutionType.NOT_AVAILABLE, doc_name, zone="COMPONENT_CALLOUT", snippet=mfr or block_header[:20]),
                     "qty": self._create_evidence_field(1, ResolutionType.DIRECT, doc_name, zone="COMPONENT_CALLOUT"),
                     "uom": self._create_evidence_field("EA", ResolutionType.DIRECT, doc_name, zone="COMPONENT_CALLOUT")
                 }

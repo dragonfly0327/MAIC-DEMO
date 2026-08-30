@@ -1,0 +1,66 @@
+{
+    "pending_bom": {
+        "to": [
+            "TengAiTink"
+        ],
+        "cc": [
+            "TengAiTink"
+        ]
+    },
+    "pending_sourcing_and_cycle_time": {
+        "to": [
+            "TengAiTink"
+        ],
+        "cc": [
+            "TengAiTink"
+        ]
+    },
+    "pending_sourcing": {
+        "to": [
+            "TengAiTink"
+        ],
+        "cc": [
+            "TengAiTink"
+        ]
+    },
+    "pending_cycle_time": {
+        "to": [
+            "TengAiTink"
+        ],
+        "cc": [
+            "TengAiTink"
+        ]
+    },
+    "pending_costing": {
+        "to": [
+            "TengAiTink"
+        ],
+        "cc": [
+            "TengAiTink"
+        ]
+    },
+    "pending_npi": {
+        "to": [
+            "TengAiTink"
+        ],
+        "cc": [
+            "TengAiTink"
+        ]
+    },
+    "pending_wi": {
+        "to": [
+            "TengAiTink"
+        ],
+        "cc": [
+            "TengAiTink"
+        ]
+    },
+    "completed": {
+        "to": [
+            "TengAiTink"
+        ],
+        "cc": [
+            "TengAiTink"
+        ]
+    }
+}

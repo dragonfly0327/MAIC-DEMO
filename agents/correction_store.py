@@ -216,3 +216,20 @@ class CorrectionStore:
                            and r.get("correct_value") == correct_value)]
         self._save_all(records)
         return before - len(records)
+
+    def remove_correction_by_hint(self, doc_hint):
+        """Remove all correction records matching a part number, document hint, or keyword."""
+        records = self._load_all()
+        before = len(records)
+        clean_hint = str(doc_hint).strip().upper()
+        records = [r for r in records
+                   if clean_hint not in str(r.get("doc_hint", "")).upper()
+                   and clean_hint not in str(r.get("wrong_value", "")).upper()
+                   and clean_hint not in str(r.get("correct_value", "")).upper()]
+        self._save_all(records)
+        return before - len(records)
+
+    def clear_all(self):
+        """Wipe entire corrections database."""
+        self._save_all([])
+        return True

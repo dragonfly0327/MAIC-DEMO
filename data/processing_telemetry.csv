@@ -1,0 +1,62 @@
+﻿timestamp,email_subject,rfq_number,run_index,duration_seconds,formatted_duration,bom_assemblies_count,components_count,attachments_count,cache_hits,api_calls,speedup_vs_run1
+2026-08-28 16:49:09,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,1,51.76,51.8s,24,87,6,0,0,Baseline (1.0x)
+2026-08-28 16:56:59,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,2,37.03,37.0s,24,87,6,0,0,1.4x faster
+2026-08-28 18:27:00,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,3,43.64,43.6s,24,87,6,0,0,1.2x faster
+2026-08-28 18:53:25,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,4,35.35,35.4s,24,87,6,0,0,1.5x faster
+2026-08-28 19:10:18,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,5,29.46,29.5s,24,87,6,0,0,1.8x faster
+2026-08-28 19:26:58,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,6,27.37,27.4s,24,93,6,0,0,1.9x faster
+2026-08-28 19:37:03,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,7,27.41,27.4s,24,93,6,0,0,1.9x faster
+2026-08-28 19:41:38,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,8,27.04,27.0s,24,93,6,0,0,1.9x faster
+2026-08-28 19:49:51,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,9,27.22,27.2s,24,93,6,0,0,1.9x faster
+2026-08-28 19:54:28,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,10,27.22,27.2s,24,93,6,0,0,1.9x faster
+2026-08-28 20:09:37,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,11,27.18,27.2s,24,93,6,0,0,1.9x faster
+2026-08-28 21:14:17,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,12,27.53,27.5s,24,93,6,0,0,1.9x faster
+2026-08-28 21:19:11,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,13,26.9,26.9s,24,93,6,0,0,1.9x faster
+2026-08-28 22:08:15,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,14,27.02,27.0s,24,93,6,0,0,1.9x faster
+2026-08-28 22:11:27,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,15,26.93,26.9s,24,93,6,0,0,1.9x faster
+2026-08-28 22:20:59,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,16,29.04,29.0s,24,93,6,0,0,1.8x faster
+2026-08-28 22:46:30,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,17,27.25,27.2s,24,93,6,0,0,1.9x faster
+2026-08-28 22:56:36,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,18,28.42,28.4s,24,93,6,0,0,1.8x faster
+2026-08-28 23:21:17,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,19,27.08,27.1s,24,93,6,0,0,1.9x faster
+2026-08-28 23:39:15,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,20,26.92,26.9s,24,93,6,0,0,1.9x faster
+2026-08-28 23:49:26,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,21,26.93,26.9s,24,93,6,0,0,1.9x faster
+2026-08-29 00:04:25,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,22,27.12,27.1s,24,93,6,0,0,1.9x faster
+2026-08-29 00:12:10,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,23,27.02,27.0s,24,93,6,0,0,1.9x faster
+2026-08-29 00:17:11,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,24,26.79,26.8s,24,93,6,0,0,1.9x faster
+2026-08-29 00:24:54,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,25,26.84,26.8s,24,93,6,0,0,1.9x faster
+2026-08-29 00:50:35,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,26,26.75,26.8s,24,93,6,0,0,1.9x faster
+2026-08-29 00:53:40,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,27,26.8,26.8s,24,93,6,0,0,1.9x faster
+2026-08-29 01:00:41,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,28,27.04,27.0s,24,93,6,0,0,1.9x faster
+2026-08-29 01:16:47,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,29,26.83,26.8s,24,93,6,0,0,1.9x faster
+2026-08-29 01:23:13,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,30,27.2,27.2s,24,93,6,0,0,1.9x faster
+2026-08-29 01:28:43,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,31,28.49,28.5s,24,93,6,0,0,1.8x faster
+2026-08-29 01:33:28,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,32,26.96,27.0s,24,93,6,0,0,1.9x faster
+2026-08-29 01:36:53,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,33,27.57,27.6s,24,93,6,0,0,1.9x faster
+2026-08-29 01:42:39,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,34,27.12,27.1s,24,93,6,0,0,1.9x faster
+2026-08-29 02:06:13,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,35,26.78,26.8s,24,87,6,0,0,1.9x faster
+2026-08-29 12:18:40,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,36,91.36,1m 31.4s,24,87,6,0,0,0.6x
+2026-08-29 13:02:08,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,37,26.94,26.9s,24,87,6,0,0,1.9x faster
+2026-08-29 13:05:40,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,38,26.77,26.8s,24,87,6,0,0,1.9x faster
+2026-08-29 13:37:26,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,39,26.83,26.8s,24,87,6,0,0,1.9x faster
+2026-08-29 13:41:26,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,40,26.79,26.8s,24,87,6,0,0,1.9x faster
+2026-08-29 13:49:26,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,41,26.92,26.9s,24,87,6,0,0,1.9x faster
+2026-08-29 14:11:12,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,42,26.92,26.9s,24,87,6,0,0,1.9x faster
+2026-08-29 14:31:02,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,43,26.83,26.8s,24,87,6,0,0,1.9x faster
+2026-08-29 14:43:30,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,44,28.22,28.2s,24,87,6,0,0,1.8x faster
+2026-08-29 14:48:54,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,45,26.89,26.9s,24,87,6,0,0,1.9x faster
+2026-08-29 14:54:01,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,46,27.51,27.5s,24,87,6,0,0,1.9x faster
+2026-08-29 15:25:39,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,47,1112.74,18m 32.7s,24,87,6,0,0,0.0x
+2026-08-29 16:37:10,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,48,106.51,1m 46.5s,24,87,6,0,0,0.5x
+2026-08-29 17:06:45,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,49,28.01,28.0s,24,87,6,0,0,1.8x faster
+2026-08-29 17:40:05,Fwd: [Relocation] Cable - AEI - RS25-8507,RS25-8507,50,26.9,26.9s,24,87,6,0,0,1.9x faster
+2026-08-29 18:35:25,Fwd: Enquiry ~ Cable _ Tecan - RS25-8099,RS25-8099,1,0.99,1.0s,5,38,14,0,0,Baseline (1.0x)
+2026-08-29 18:41:32,REQUEST FOR QUOTATION - CUST-C155,RFQ-08291841,1,0.1,0.1s,24,24,4,0,0,Baseline (1.0x)
+2026-08-29 18:43:12,REQUEST FOR QUOTATION - CUST-C155,RFQ-08291843,2,0.06,0.1s,24,24,4,0,0,1.7x faster
+2026-08-29 18:44:01,REQUEST FOR QUOTATION - CUST-C155,RFQ-08291844,3,0.06,0.1s,24,24,4,0,0,1.7x faster
+2026-08-29 18:52:35,REQUEST FOR QUOTATION - CUST-C155,RFQ-08291852,4,1.39,1.4s,24,87,4,0,0,0.1x
+2026-08-29 18:52:58,REQUEST FOR QUOTATION - CUST-C155,RFQ-08291852,5,1.34,1.3s,24,87,4,0,0,0.1x
+2026-08-29 18:54:13,REQUEST FOR QUOTATION - CUST-C155,RFQ-08291854,6,1.33,1.3s,24,87,4,0,0,0.1x
+2026-08-29 18:57:56,REQUEST FOR QUOTATION - CUST-C155,RFQ-08291857,7,1.3,1.3s,24,87,3,0,0,0.1x
+2026-08-29 19:11:56,REQUEST FOR QUOTATION - CUST-C155,RFQ-08291911,8,1.34,1.3s,24,87,4,0,0,0.1x
+2026-08-29 19:15:41,REQUEST FOR QUOTATION - CUST-C155,RFQ-08291915,9,1.33,1.3s,24,87,4,0,0,0.1x
+2026-08-29 20:23:55,REQUEST FOR QUOTATION - CUST-C155,RFQ-08292023,10,1.29,1.3s,24,87,4,0,0,0.1x

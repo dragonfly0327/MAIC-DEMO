@@ -1,69 +1,88 @@
-# Wordpress - ignore core, configuration, examples, uploads and logs.
-# https://github.com/github/gitignore/blob/main/WordPress.gitignore
+# ==============================================================================
+# ContinuumX Agentic Platform — Git Ignore Configuration
+# ==============================================================================
 
-# Core
-#
-# Note: if you want to stage/commit WP core files
-# you can delete this whole section/until Configuration.
-/wp-admin/
-/wp-content/index.php
-/wp-content/languages
-/wp-content/plugins/index.php
-/wp-content/themes/index.php
-/wp-includes/
-/index.php
-/license.txt
-/readme.html
-/wp-*.php
-/xmlrpc.php
-
-# Configuration
-wp-config.php
-
-# Example themes
-/wp-content/themes/twenty*/
-
-# Example plugin
-/wp-content/plugins/hello.php
-
-# Uploads
-/wp-content/uploads/
-
-# Log files
-*.log
-
-# htaccess
-/.htaccess
-
-# All plugins
-#
-# Note: If you wish to whitelist plugins,
-# uncomment the next line
-#/wp-content/plugins
-
-# All themes
-#
-# Note: If you wish to whitelist themes,
-# uncomment the next line
-#/wp-content/themes
-
-/AgenticPlatform/*.md
-/ref/
-/dist/*
-/build/*
-/build_all_modules.py
-/*.json
-/*.iss
-
-# Python build artifacts (keep these out of the repo)
+# Python Bytecode, Caches & Virtual Environments
 __pycache__/
-*.pyc
-*.pyo
-**/dist/
-**/build/
+*.py[cod]
+*$py.class
+*.so
 .venv/
 venv/
+env/
+ENV/
 .env
+.env.*
 
-# PyInstaller
+# Testing & Coverage Artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Build Artifacts, Binaries & Packaging Files
+build/
+dist/
+**/build/
+**/dist/
+*.exe
+*.dll
+*.so
+*.dylib
+*.pkg
+*.toc
+*.pyz
+*.zip
+*.spec
 *.spec.bak
+*.iss
+
+# Platform Server & Runtime Database Storage
+platform/data/
+data/
+**/data/
+EmailStaging/
+launcher_session.json
+active_session.json
+
+# Loose Duplicate Root Files in ref/
+/ref/*.py
+/ref/*.ps1
+/ref/*.iss
+/ref/*.spec
+/ref/*.ini
+/ref/*.txt
+/ref/SERVER_DATA_STRUCTURE.md
+/ref/AGENTS.md
+
+# Downstream ref Modules (Excluded from Public Push; BOM & UI Prompts Tracked)
+/ref/Costing/
+/ref/Cycle Time/
+/ref/NPI/
+/ref/Project Management/
+/ref/Sourcing/
+/ref/WI/
+
+# Module Runtime Logs, Caches & Temporary Storage
+*.log
+*.tmp
+*.bak
+**/WI_Log/
+**/temp/
+**/scratch/
+scratch/
+scratch_*.html
+
+# Operating System & IDE Files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+
+# Internal Documentation & Spec Guidelines
+/AgenticPlatform/*.md
+/AgenticPlatform/security/
+/AGENTS.md
+/SERVER_DATA_STRUCTURE.md

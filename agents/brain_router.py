@@ -19,9 +19,14 @@ CHART_COLORS = [
 def generate_rfq_chart(chart_type="stage", stats=None):
     """
     Generates a matplotlib Figure for embedding in Tkinter chat.
-    chart_type: 'stage' | 'customer' | 'assembly' | 'overview'
+    chart_type: 'stage' | 'customer' | 'assembly' | 'overview' (or tuple from detect_chart_intent)
     Returns: matplotlib.figure.Figure or None
     """
+    if isinstance(chart_type, (tuple, list)):
+        chart_type = chart_type[0] if len(chart_type) > 0 else "stage"
+    if not chart_type:
+        chart_type = "stage"
+
     try:
         import matplotlib
         matplotlib.use("Agg")
@@ -245,13 +250,27 @@ def get_rfq_summary_stats(server_path=None):
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     ref_bom = os.path.join(base_dir, "ref", "BOM")
     if ref_bom not in sys.path:
-        sys.path.insert(0, ref_bom)
+        sys.path.append(ref_bom)
 
+    target_dir = None
     try:
         from utils import BOM_DATA_DIR
-        target_dir = BOM_DATA_DIR
+        if os.path.exists(BOM_DATA_DIR):
+            target_dir = BOM_DATA_DIR
     except Exception:
-        target_dir = os.path.join(base_dir, "ref", "BOM", "bom_data")
+        pass
+
+    if not target_dir or not os.path.exists(target_dir):
+        candidates = [
+            os.path.join(base_dir, "test_server_mock", "BOM", "AppData", "BOM Data"),
+            os.path.join(base_dir, "ref", "BOM", "AppData", "BOM Data"),
+            os.path.join(base_dir, "ref", "BOM", "bom_data"),
+            os.path.join(base_dir, "AppData", "BOM Data")
+        ]
+        for cand in candidates:
+            if os.path.exists(cand):
+                target_dir = cand
+                break
 
     total_rfqs = 0
     stage_counts = {}
@@ -346,6 +365,11 @@ class BrainRouter:
         )
         
         res = self.query_model(module_key, prompt, system_prompt, stats)
+        if isinstance(res, str) and res:
+            return res
+        elif isinstance(res, dict) and res.get("response"):
+            return res["response"]
+
         # Smart Data Reasoning Fallback when LLM API / Ollama is offline
         prompt_lower = prompt.lower()
         rfqs = stats.get("rfq_list", [])
@@ -548,7 +572,11 @@ class BrainRouter:
                     f"• Total RFQs Created in System: {total} RFQs\n\n"
                     f"• Current Stage Distribution:\n" + "\n".join(stage_lines))
 
-        return None
+        stage_lines = [f"   - {st}: {cnt}" for st, cnt in stats.get("stage_counts", {}).items()]
+        return (f"ℹ️ ContinuumX System Overview:\n\n"
+                f"• Total RFQs in Database: {total}\n"
+                f"• Stage Breakdown:\n" + ("\n".join(stage_lines) if stage_lines else "   (No active RFQs loaded)") +
+                f"\n\n💡 Tip: You can ask stage status ('Which RFQs are in Sourcing?'), request charts ('Show stage distribution chart'), or assign MOQs.")
 
     def extract_parameters_with_llm(self, text, context=None):
         """
@@ -701,11 +729,11 @@ class BrainRouter:
         if not api_key and "AGENTS_LLM" in self.config:
             api_key = self.config["AGENTS_LLM"].get("gemini_api_key", "").strip()
 
-        if not api_key:
+        if not api_key or "<YOUR_" in api_key:
             return {
                 "success": False,
                 "provider": "gemini",
-                "error": "Gemini API Key missing in config.ini or GEMINI_API_KEY environment variable.",
+                "error": "Gemini API Key missing or unconfigured placeholder in config.ini.",
                 "response": None
             }
 
@@ -755,11 +783,11 @@ class BrainRouter:
         if not api_key and "AGENTS_LLM" in self.config:
             api_key = self.config["AGENTS_LLM"].get("openai_api_key", "").strip()
 
-        if not api_key:
+        if not api_key or "<YOUR_" in api_key:
             return {
                 "success": False,
                 "provider": "openai",
-                "error": "OpenAI API Key missing in config.ini or OPENAI_API_KEY environment variable.",
+                "error": "OpenAI API Key missing or unconfigured placeholder in config.ini.",
                 "response": None
             }
 
@@ -793,7 +821,7 @@ class BrainRouter:
 
     def check_rfq_emails(self, limit=5, unread_only=False, subject_filter=None, progress_callback=None):
         """
-        Connects to IMAP inbox (aitinkteng03@gmail.com), fetches recent emails,
+        Connects to IMAP inbox (maic-demo@continuumx.com.my), fetches recent emails,
         classifies RFQs, and extracts structured BOM data + generates synthetic Excel.
 
         Args:

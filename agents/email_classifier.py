@@ -7,9 +7,14 @@
 import os
 import json
 import re
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.pipeline import Pipeline
+
+try:
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    from sklearn.naive_bayes import MultinomialNB
+    from sklearn.pipeline import Pipeline
+    HAS_SKLEARN = True
+except ImportError:
+    HAS_SKLEARN = False
 
 HARD_NEGATIVE_SENDERS = [
     "sephora", "watsons", "mcdonald", "mcdonalds", "prudential", "maybank", "cimb",
@@ -69,7 +74,7 @@ class EmailClassifier:
             self.keywords = data.get("keywords", {})
             training_samples = data.get("training_samples", [])
 
-            if training_samples:
+            if training_samples and HAS_SKLEARN:
                 texts = [s["text"] for s in training_samples]
                 labels = [s["label"] for s in training_samples]
 
@@ -184,17 +189,3 @@ class EmailClassifier:
             "is_rfq_related": is_rfq
         }
 
-
-if __name__ == "__main__":
-    clf = EmailClassifier()
-    # Test 1: Sephora (Must be NON_RFQ)
-    t1 = clf.classify_email("Just dropped: Rare Beauty's New Fragrance 🌸", sender="hello@beauty.sephora.my")
-    print("Test 1 (Sephora):", t1["intent"], "is_rfq:", t1["is_rfq_related"])
-
-    # Test 2: Jessie Kong (Must be NEW_RFQ)
-    t2 = clf.classify_email("RFQ - Eastek/Graco - RS26-8004", "Please help to quote. End Customer: Graco. EAU 3-5k", sender="jessiekong@radysis-asia.com")
-    print("Test 2 (Graco RFQ):", t2["intent"], "is_rfq:", t2["is_rfq_related"])
-
-    # Test 3: Jessie Kong Cable Enquiry (Must be NEW_RFQ)
-    t3 = clf.classify_email("Enquiry ~ Cable _ Tecan - RS25-8099", "Here is enquiry from Tecan.", sender="jessiekong@radysis-asia.com")
-    print("Test 3 (Tecan Cable Enquiry):", t3["intent"], "is_rfq:", t3["is_rfq_related"])

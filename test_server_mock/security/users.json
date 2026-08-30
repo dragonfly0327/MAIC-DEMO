@@ -1,0 +1,77 @@
+{
+    "testuser_0": {
+        "hash": "f2877666c2c092e5abd394483097fba9e19f0ed4b86579974f542dc2c7b1368f82c20810c501e005816ba1a479b1e72486aeecedc258f766b44c2d1f5894ca5ba33d7b32b59a13a917b3247371520bca770a887c1c3f4c97429e6373674ea79d",
+        "role": "Engineering",
+        "email": "test_0@example.com"
+    },
+    "testuser_1": {
+        "hash": "816fd03c4013fd3f237939abac08fce77d5961f768fde88a8da11ce0fa547e9cadbc367f74ee851996d6b45630ff0813096df85fe7baf661e841425f2539c911af1d56880f58abdea3752b81e30bb75d6d3834db3492f542046c2b79d95d787f",
+        "role": "Engineering",
+        "email": "test_1@example.com"
+    },
+    "testuser_3": {
+        "hash": "f28217f25e365b2e968260600df937f528ee2d574fc292383c7a9bed3820077087ec2dcefd10a8b654810dc53250d6479dd7d4a826226e1cd7e4834a556436cbc6ddd077d8ced0222af33090703aa44965cca006c3210567f8314d6c9b758925",
+        "role": "Engineering",
+        "email": "test_3@example.com"
+    },
+    "testuser_2": {
+        "hash": "d31001f16c584a4b58da6ef3a3b51057aca3657e9433c4acd08011d490e1223b0fb7c0776db2446d10f414fc19ada84b30874be3b7ace41376d50d364f82d37dafd376eed17ab96e592f190640881951499c84cf3dbcde550e6ea23afda52cbd",
+        "role": "Engineering",
+        "email": "test_2@example.com"
+    },
+    "testuser_5": {
+        "hash": "f2ea5a06c9f54a53d4ba75b09120125b967b229a60a9aa72306e1709c8fda0f105a78dfb95194afdd6e640b0bdde981f9304cd10d048282f70f052fe9c63ad8b1ea0148b968a261b6d33f6dfc80322dcaae09c6c45e9dbb04257cd2723341dd9",
+        "role": "Engineering",
+        "email": "test_5@example.com"
+    },
+    "testuser_9": {
+        "hash": "74612ad89cfe7869cc7996c0c0b6c9b400cc88be82c7fb48e092303a2bceccc6dd87f163ff18997d1e92a97648d9283606ace155f17ba08d5692ab84009db594b5db465820502ea3fbab001187bb6d451cd204addf95f19f3dc103d3754f7e85",
+        "role": "Engineering",
+        "email": "test_9@example.com"
+    },
+    "testuser_7": {
+        "hash": "42d1f3d238bb48d339d287315d64a0f5ed70929e64e36c014e39216cdedc07c48e48424094aff3b4daa15496e949c05dc90fbf35d13e396fe5308162f7d6feaeaf71a2b1bac3a39ac4cbb02e1fd078a0db0cd8c6ff3ed761c47efc0eed774497",
+        "role": "Engineering",
+        "email": "test_7@example.com"
+    },
+    "testuser_8": {
+        "hash": "29a3ef2eae8109089b4821332d73f0f3c161286b1f1e2c9dae0a789f545f026b66bf217fa1fd407c0a2a5513e6790f4db7ffae8f661979d5fdd34b4e7f1131ee9dc42259604bc69ff4fdf6f6ea9e3c92ce30275ee1679f3c3d0472ba61f692fb",
+        "role": "Engineering",
+        "email": "test_8@example.com"
+    },
+    "testuser_4": {
+        "hash": "baf8de09ebebe3b242d4bb16d03951e6640985fdf2a0dda9487d047de053b4934bd91f95bf5316b0a164d4cd68b29ce26766e3dcd9fddf291356273b279870e87db2322440da32fcf873645ead0f37bd12095b04a0ee0af0e1fd0a0b4d56e519",
+        "role": "Engineering",
+        "email": "test_4@example.com"
+    },
+    "testuser_6": {
+        "hash": "67f4561245dd1db3d31da5810f1794350d7e7c9ab32229563ca58eac53f9b5054026be7563aa550822ba3cf03685117d0fe96c792623c6931977907ce7207ee7d4bc730f8394513c3191fcdaa174e599b9948a6807996f2109914fcec22b6a3d",
+        "role": "Engineering",
+        "email": "test_6@example.com"
+    },
+    "admin": {
+        "hash": "0d6dac8b6b53451d435003feee61519241db3d78fc04a19966054af12023359a45c9c3603e4e4a76207c3be80bd976d40d0ba0c4bd860406ffe919bb6d0e5835e98fd4703f1ae3f17e2607bb1d1fa9ff5b4d860ff4e67f8a603b9ecdb8801b50",
+        "role": "System Administrator",
+        "email": "admin@example.com"
+    },
+    "sysadmin": {
+        "hash": "0957894dd52502ada6c99a62e4c61149fc3f7c28e4f0d91ac85b6ffb6c96fea79daa1d367f624be9fa0fbcbf2ce38c4664f088322784325d06f2f87a33fd471f2d9a39a2947459b02c82a48ef54ddc080d2376cd5a1fd5c116f68e4aa38d8278",
+        "role": "System Administrator",
+        "email": "sysadmin@example.com"
+    },
+    "engineer": {
+        "hash": "443476da5cf5a3492a7a1f6f1c9f935a033ba760c8a54ac6adb4d0d795badd2db041c0ae6d0bc7c8545d90d3e67f9ba5cf17f376b0c6a2304287c30a20acb94053589432ab0bc02a012ac91fd51b840b8c75adb753d72a43fb7efd008da8b248",
+        "role": "Engineering",
+        "email": "engineer@example.com"
+    },
+    "sourcing": {
+        "hash": "77c52e5764a62cb5ea85d81e1a77036635ca12dce135bda7704a0e23427faf874a8226ee72c785b3efc185ba2baf3d0703a260a815f5f59342bc4bff8999cc415e399262809f7b1380d7383953a858dcb6d4af25d687dd8b1ba53a8334a7ec0b",
+        "role": "Sourcing",
+        "email": "sourcing@example.com"
+    },
+    "costing": {
+        "hash": "eb93f0346f57890c9365709df3edf73a87d3df88ba879b1dce991447ee0dac039b7279a1c04502ddcfa15f497961ff6f8a6200e55c5856e310e8cab386e22fae34065117f56888635b3353a45bbcc43e307ee16c37bfd00ae36dbeb2dc48dbd9",
+        "role": "Costing",
+        "email": "costing@example.com"
+    }
+}

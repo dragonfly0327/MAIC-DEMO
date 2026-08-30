@@ -1,0 +1,53 @@
+{
+  "keywords": {
+    "NEW_RFQ": [
+      "rfq", "request for quote", "new rfq", "quotation request", "request for quotation",
+      "please quote", "bom attached", "drawing attached", "eau", "estimated annual usage",
+      "target price", "lead time quote", "wire harness rfq", "pcba quotation", "turnkey quote",
+      "new project rfq", "rfq submission", "bid request", "rfq inquiry", "cable assembly quotation",
+      "bill of materials", "bom file", "enquiry", "cable", "cable for localization", "localization",
+      "wire harness", "eastek", "graco", "tecan", "honeywell"
+    ],
+    "RFQ_FOLLOWUP": [
+      "re:", "fwd:", "follow up", "revised bom", "updated target price", "additional drawing",
+      "re: rfq", "re: quotation", "missing eau", "eau update", "revised pricing",
+      "updated eau", "re: project", "bom update", "moq update", "clarification on rfq"
+    ],
+    "NON_RFQ": [
+      "out of office", "meeting reminder", "newsletter", "invoice", "payment confirmation",
+      "weekly update", "company announcement", "uncaught exception", "happy holidays",
+      "lunch order", "system maintenance", "password reset", "unsubscribed", "statement",
+      "account statement", "maybank", "bank", "credit card", "receipt", "insurance",
+      "deals", "promotion", "watsons", "prudential", "grab", "shopee", "telecom", "celcom", "maxis",
+      "mcdonald", "mcdonalds", "inside scoop", "samsung", "lenovo", "sephora", "touch 'n go",
+      "lotus", "lotuss", "cimb", "rhb", "airasia", "genting", "alison", "linkedin", "job", "career"
+    ]
+  },
+  "training_samples": [
+    {"text": "Hi Team, Please find attached our new RFQ for Wire Harness assembly. EAU is 5000 pcs. Target price included in excel.", "label": "NEW_RFQ"},
+    {"text": "Request for Quotation - PCBA PURGE CONTROL MB Rev A. Attached BOM and drawings.", "label": "NEW_RFQ"},
+    {"text": "New RFQ Inquiry: Need turnkey quote for 8247JT-2 cable assembly. Target price is $12.50.", "label": "NEW_RFQ"},
+    {"text": "RFQ Submission for Project Radysis N2. Attached BOM files for suppliers.", "label": "NEW_RFQ"},
+    {"text": "Please provide quotation for 1000 units of part number 810-105035-003. EAU 12k.", "label": "NEW_RFQ"},
+    {"text": "Enquiry ~ Cable _ Tecan - RS25-8099 Hi AT, Here is the enquiry from Tecan. I did ask for the BOM.", "label": "NEW_RFQ"},
+    {"text": "RFQ - Eastek/Graco - RS26-8004 Hi AT, Please help to quote for below. Project Name: Sprayer End Customer: Graco.", "label": "NEW_RFQ"},
+    {"text": "Cable for localization - Tecan/Honeywell - RS26-8300 Hi AT, Kindly review the attached drawing and provide quote.", "label": "NEW_RFQ"},
+    {"text": "RE: RFQ #8247JT-2 - Here is the updated Target Price and EAU as requested.", "label": "RFQ_FOLLOWUP"},
+    {"text": "Re: Quotation Request 810-105035 - Sending revised BOM with alternate MPNs.", "label": "RFQ_FOLLOWUP"},
+    {"text": "Follow up on RFQ: Target price for line 3 is $0.45 each.", "label": "RFQ_FOLLOWUP"},
+    {"text": "Fwd: RE: RFQ 8247JT - Adding MOQ requirement for assembly #1.", "label": "RFQ_FOLLOWUP"},
+    {"text": "Re: Wire Harness RFQ - Clarification on drawing revision B.", "label": "RFQ_FOLLOWUP"},
+    {"text": "Out of office auto-reply: I am currently on leave until next Monday.", "label": "NON_RFQ"},
+    {"text": "Weekly team status meeting scheduled for tomorrow at 10 AM.", "label": "NON_RFQ"},
+    {"text": "Invoice #98234 for software subscription payment confirmation.", "label": "NON_RFQ"},
+    {"text": "Company All-Hands Announcement and quarterly financial report.", "label": "NON_RFQ"},
+    {"text": "Savings Account Statement July 2026 M2U Statements e-Statement attached.", "label": "NON_RFQ"},
+    {"text": "Life Moving Forward? Upgrade Your Critical Illness Coverage Today Prudential.", "label": "NON_RFQ"},
+    {"text": "Super Kaw Kaw Deals! Watsons member discount voucher.", "label": "NON_RFQ"},
+    {"text": "Your monthly credit card statement is now available for download.", "label": "NON_RFQ"},
+    {"text": "Payment received: Thank you for your payment confirmation receipt.", "label": "NON_RFQ"},
+    {"text": "Final Piece! Redeem Now or Never! McDonald's Malaysia.", "label": "NON_RFQ"},
+    {"text": "Turn Your Points into Your Next Upgrade Lenovo Malaysia Online Store.", "label": "NON_RFQ"},
+    {"text": "Apply and get cash in 10 mins for your daily essentials CIMB Marketing.", "label": "NON_RFQ"}
+  ]
+}

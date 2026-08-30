@@ -1,0 +1,38 @@
+{
+    "System Administrator": [
+        "BOM",
+        "Sourcing",
+        "Cycle Time",
+        "Costing",
+        "NPI",
+        "WI",
+        "Project Management"
+    ],
+    "Top Management": [
+        "BOM",
+        "Sourcing",
+        "Cycle Time",
+        "Costing",
+        "NPI",
+        "WI",
+        "Project Management"
+    ],
+    "Engineering": [
+        "BOM",
+        "WI",
+        "NPI"
+    ],
+    "Sourcing": [
+        "Sourcing",
+        "Costing",
+        "Cycle Time"
+    ],
+    "Costing": [
+        "Costing"
+    ],
+    "QAQC": [
+        "WI",
+        "NPI"
+    ],
+    "Pending": []
+}

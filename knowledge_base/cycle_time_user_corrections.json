@@ -1,0 +1,36 @@
+[
+    {
+        "timestamp": "2026-08-09 21:28:12",
+        "customer": "Welcome",
+        "context": "DWG-001 Rev B",
+        "ai_proposed": {
+            "wire_size": "24 AWG",
+            "circuit_count": 8
+        },
+        "human_corrected": {
+            "wire_size": "22 AWG",
+            "circuit_count": 12
+        },
+        "final_approved": {
+            "wire_size": "22 AWG",
+            "circuit_count": 12
+        }
+    },
+    {
+        "timestamp": "2026-08-09 21:29:21",
+        "customer": "Welcome Sdn Bhd",
+        "context": "Drawing Part DWG-9988",
+        "ai_proposed": {
+            "wire_size": "24 AWG",
+            "circuit_count": 8
+        },
+        "human_corrected": {
+            "wire_size": "20 AWG",
+            "circuit_count": 16
+        },
+        "final_approved": {
+            "wire_size": "20 AWG",
+            "circuit_count": 16
+        }
+    }
+]

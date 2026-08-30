@@ -1,8 +1,19 @@
 import os
+import sys
 import json
 import configparser
 from datetime import datetime
 from typing import Dict, Any, Optional, List
+
+# Standardized Base Directory Resolution Pattern
+if getattr(sys, 'frozen', False) or hasattr(sys, '_MEIPASS') or "__compiled__" in globals():
+    BASE_DIR = os.path.dirname(os.path.abspath(sys.executable))
+elif '__file__' in globals():
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+elif len(sys.argv) > 0 and sys.argv[0] and sys.argv[0] != '-c':
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))))
+else:
+    BASE_DIR = os.getcwd()
 
 class WorkflowStage:
     EMAIL = "email"
@@ -29,10 +40,7 @@ class WorkflowStateManager:
     stored in BOM Data/<Customer>/<RFQ>.json.
     """
     def __init__(self, base_dir: Optional[str] = None):
-        if base_dir:
-            self.base_dir = base_dir
-        else:
-            self.base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        self.base_dir = base_dir or BASE_DIR
         self.server_path = self._load_server_path()
         self.bom_data_dir = os.path.normpath(os.path.join(self.server_path, "BOM", "AppData", "BOM Data")) if self.server_path else ""
 
@@ -55,13 +63,14 @@ class WorkflowStateManager:
                         if sp: return sp
                 except Exception:
                     pass
-        return r"D:\RadysisAsia MockServer"
+        # Dynamic default relative to self.base_dir
+        return os.path.join(self.base_dir, "test_server_mock")
 
     def resolve_rfq_filepath(self, rfq_id: str, customer: Optional[str] = None) -> Optional[str]:
         """Finds the absolute path of an RFQ's JSON file in BOM Data."""
         if not self.bom_data_dir or not os.path.exists(self.bom_data_dir):
             # Fallback path lookup
-            alt_dir = r"D:\RadysisAsia MockServer\BOM\AppData\BOM Data"
+            alt_dir = os.path.join(self.base_dir, "ref", "BOM", "AppData", "BOM Data")
             if os.path.exists(alt_dir):
                 self.bom_data_dir = alt_dir
             else:

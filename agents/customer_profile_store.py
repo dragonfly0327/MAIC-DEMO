@@ -42,23 +42,23 @@ class CustomerProfileStore:
 
     def _ensure_built_in_profiles(self):
         """Initializes baseline profiles for standard known customers."""
-        tecan_path = self._get_profile_path("Tecan")
-        if not os.path.exists(tecan_path):
-            tecan_profile = {
-                "customer_name": "Tecan",
-                "aliases": ["tecan", "tecan gscm", "tecan switzerland"],
+        cust_456_path = self._get_profile_path("CUST-456")
+        if not os.path.exists(cust_456_path):
+            cust_456_profile = {
+                "customer_name": "CUST-456",
+                "aliases": ["cust-456", "cust_456", "client-456"],
                 "default_commodity": "Wire Harness",
                 "archetypes": {
                     "master_excel_package": {
                         "description": "Master Excel RFQ with unzipped SAP BOMs and PDF drawings",
                         "indicators": {
                             "has_excel": True,
-                            "filename_patterns": ["cable_rfq", "rfq_cable", "tecan_rfq", "relocation"],
+                            "filename_patterns": ["cable_rfq", "rfq_cable", "cust_rfq", "relocation"],
                             "header_keywords": ["article no", "rev.level", "mat status", "description", "volume", "eau", "drawing", "bom"]
                         },
                         "excel_mapping": {
                             "header_search_rows": [1, 10],
-                            "assy_no_aliases": ["tecan article no", "article no", "part no", "item no"],
+                            "assy_no_aliases": ["article no", "part no", "item no"],
                             "assy_rev_aliases": ["rev.level", "rev", "revision", "level"],
                             "assy_model_aliases": ["description", "desc", "model", "item description"],
                             "eau_aliases": ["estimated annual volume", "annual volume", "volume quantity", "volume", "eau", "annual consumption"],
@@ -71,7 +71,7 @@ class CustomerProfileStore:
                         },
                         "drawings": {
                             "filename_patterns": ["AJ0_{assy_no}_EN_{rev}.pdf", "{assy_no}.{rev}*.pdf"],
-                            "sap_callout_keyword": "TECAN-SAP"
+                            "sap_callout_keyword": "SAP-DRAWING"
                         }
                     },
                     "drawing_only_package": {
@@ -81,24 +81,24 @@ class CustomerProfileStore:
                             "has_pdf_drawings": True
                         },
                         "title_block_pattern": r'([0-9]{8})\.([0-9]{2})',
-                        "callout_sap_pattern": r'TECAN-SAP[:\s]+([0-9]{7,10})'
+                        "callout_sap_pattern": r'SAP[:\s]+([0-9]{7,10})'
                     }
                 },
                 "mpn_blacklist": [
                     "number and name", "number and nam", "part number and name",
-                    "component", "description", "order code", "tecan-sap", "tecan sap",
+                    "component", "description", "order code",
                     "item", "sap", "rev", "qty", "uom"
                 ],
                 "verified_by_human": True,
                 "version": 1
             }
-            self.save_profile(tecan_profile)
+            self.save_profile(cust_456_profile)
 
-        graco_path = self._get_profile_path("Graco")
-        if not os.path.exists(graco_path):
-            graco_profile = {
-                "customer_name": "Graco",
-                "aliases": ["graco", "eastek graco", "eastek"],
+        cust_123_path = self._get_profile_path("CUST-123")
+        if not os.path.exists(cust_123_path):
+            cust_123_profile = {
+                "customer_name": "CUST-123",
+                "aliases": ["cust-123", "cust_123", "client-123"],
                 "default_commodity": "Wire Harness",
                 "archetypes": {
                     "email_body_embedded_table": {
@@ -115,7 +115,7 @@ class CustomerProfileStore:
                 "verified_by_human": True,
                 "version": 1
             }
-            self.save_profile(graco_profile)
+            self.save_profile(cust_123_profile)
 
     def get_profile(self, customer_name: str) -> Optional[Dict[str, Any]]:
         """Retrieves customer profile by name or alias."""
@@ -207,10 +207,18 @@ class CustomerProfileStore:
                     cust_candidate = d_name.title()
 
         if not cust_candidate:
+            # Check for pattern "from CUST-..." in body
+            opp_m = re.search(r'(?:from|opportunity\s+from|customer|client)[:\s]+([A-Za-z0-9_-]+)', body, re.I)
+            if opp_m:
+                c_val = opp_m.group(1).strip()
+                if c_val.lower() not in ("the", "our", "team", "this", "you"):
+                    cust_candidate = c_val
+
+        if not cust_candidate:
             # Check subject keywords
-            for part in re.split(r'[-_~]', subject):
+            for part in re.split(r'[-_~:]', subject):
                 p_clean = part.strip()
-                if p_clean and len(p_clean) >= 3 and not re.search(r'\b(?:rfq|enquiry|cable|fwd|re|relocation|wire|rs25|rs26|rs24)\b', p_clean, re.I):
+                if p_clean and len(p_clean) >= 3 and not re.search(r'\b(?:rfq|request\s+for\s+quotation|enquiry|enquiry\s+for\s+quotation|cable|fwd|re|relocation|wire|rs25|rs26|rs24)\b', p_clean, re.I):
                     cust_candidate = p_clean
                     break
 

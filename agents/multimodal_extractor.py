@@ -171,24 +171,26 @@ class MultimodalExtractor:
         # 1. Customer Name Resolution
         cust = ""
         cust_snip = ""
-        end_cust_m = re.search(r'(?:end\s+customer|customer|client)[:\s]+([^\n\r,;]+)', body, re.IGNORECASE)
+        end_cust_m = re.search(r'(?:end\s+customer|customer|client|opportunity\s+from)[:\s]+([^\n\r,;.]+)', body, re.IGNORECASE)
         if end_cust_m:
-            cust = end_cust_m.group(1).strip()
-            cust_snip = end_cust_m.group(0)
+            c_cand = end_cust_m.group(1).strip()
+            if c_cand.lower() not in ["the", "our", "team", "this"]:
+                cust = c_cand
+                cust_snip = end_cust_m.group(0)
 
         if not cust:
-            for known in ["Tecan", "Graco", "Honeywell", "Eastek", "Radysis", "Intel", "Plexus", "Celestica", "Jabil"]:
+            for known in ["Tecan", "Graco", "Honeywell", "Eastek", "Radysis", "Intel", "Plexus", "Celestica", "Jabil", "AEI"]:
                 if re.search(r'\b' + re.escape(known) + r'\b', full_text, re.I):
                     cust = known
                     cust_snip = f"Matched known customer keyword: {known}"
                     break
 
         if not cust:
-            subj_parts = re.split(r'[-_~]', subject)
+            subj_parts = re.split(r'[-_~:]', subject)
             if len(subj_parts) >= 2:
                 for part in subj_parts:
                     p_clean = part.strip()
-                    if p_clean and not re.search(r'\b(?:rfq|enquiry|cable|for\s+localization|rs25|rs26)\b', p_clean, re.I):
+                    if p_clean and not re.search(r'\b(?:rfq|request\s+for\s+quotation|enquiry|enquiry\s+for\s+quotation|cable|for\s+localization|rs25|rs26|fwd|re)\b', p_clean, re.I):
                         cust = p_clean
                         cust_snip = p_clean
                         break
@@ -523,13 +525,13 @@ class MultimodalExtractor:
                         "part_number": p_no,
                         "description": desc_val or f"Component {p_no}",
                         "mfr": mfr_val,
-                        "mpn": p_no,
+                        "mpn": "",
                         "qty": q_num,
                         "uom": uom_val or "EA",
                         "eau": assy_eau,
                         "evidence": {
                             "part": self._create_evidence(p_no, ResolutionType.DIRECT, doc_fn),
-                            "mpn": self._create_evidence(p_no, ResolutionType.DIRECT, doc_fn),
+                            "mpn": self._create_evidence(None, ResolutionType.NOT_AVAILABLE, doc_fn, reasoning="Raw BOM spreadsheet specifies customer internal article number without manufacturer MPN"),
                             "mfr": self._create_evidence(mfr_val, ResolutionType.DIRECT if mfr_val else ResolutionType.NOT_AVAILABLE, doc_fn),
                             "qty": self._create_evidence(q_num, ResolutionType.DIRECT, doc_fn),
                             "uom": self._create_evidence(uom_val, ResolutionType.DIRECT, doc_fn)
@@ -737,28 +739,70 @@ class MultimodalExtractor:
                                         if assy_items:
                                             break
 
-                                # Step 2b: Multi-Source Drawing Reconciliation (Check for drawing callouts / extra parts)
-                                drawing_extra_items = []
-                                for d_att in attachments:
-                                    d_fp = d_att.get("path", "") if isinstance(d_att, dict) else str(d_att)
-                                    d_fn = os.path.basename(d_fp).lower()
-                                    if art_no.lower() in d_fn and d_fn.endswith('.pdf') and not d_fn.startswith(('bb0_', 'datenblatt_')):
-                                        try:
-                                            dwg_parsed = DrawingVisionAgent().parse_drawing_file(d_fp, use_vision=False)
-                                            if dwg_parsed and dwg_parsed.get("items"):
-                                                existing_pns = {str(it.get("part_number", "")).strip() for it in assy_items}
-                                                for d_it in dwg_parsed["items"]:
-                                                    d_pn = str(d_it.get("part_number", "")).strip()
-                                                    if d_pn and d_pn not in existing_pns:
-                                                        d_it_copy = dict(d_it)
-                                                        d_it_copy["eau"] = eau_num
-                                                        d_it_copy["description"] = f"{d_it.get('description', 'Component')} [From Drawing]"
-                                                        drawing_extra_items.append(d_it_copy)
-                                                        existing_pns.add(d_pn)
-                                        except Exception:
-                                            pass
+                                if not assy_items:
+                                    # Fallback: search all EmailStaging folders for BOM_{art_no}.xls
+                                    local_appdata = os.environ.get('LOCALAPPDATA', os.path.join(BASE_DIR, 'data'))
+                                    stage_root = os.path.join(local_appdata, "ContXs", "EmailStaging")
+                                    if os.path.exists(stage_root):
+                                        for s_root, s_dirs, s_files in os.walk(stage_root):
+                                            for sf in s_files:
+                                                if art_no.lower() in sf.lower() and sf.lower().endswith(('.xls', '.xlsx')) and "cable_rfq" not in sf.lower():
+                                                    assy_items = self._parse_bom_xls_file(os.path.join(s_root, sf), assy_eau=eau_num)
+                                                    if assy_items:
+                                                        break
+                                            if assy_items:
+                                                break
 
-                                combined_items = assy_items + drawing_extra_items
+                                # Step 2b: Multi-Source Drawing Reconciliation (Enrich existing BOM items from drawing)
+                                if not assy_items:
+                                    # Fallback: only if NO child Excel BOM was found, derive items from drawing
+                                    for d_att in attachments:
+                                        d_fp = d_att.get("path", "") if isinstance(d_att, dict) else str(d_att)
+                                        d_fn = os.path.basename(d_fp).lower()
+                                        if art_no.lower() in d_fn and d_fn.endswith('.pdf') and not d_fn.startswith(('bb0_', 'datenblatt_')):
+                                            try:
+                                                dwg_parsed = DrawingVisionAgent().parse_drawing_file(d_fp, use_vision=False)
+                                                if dwg_parsed and dwg_parsed.get("items"):
+                                                    assy_items = list(dwg_parsed["items"])
+                                                    break
+                                            except Exception:
+                                                pass
+
+                                    if not assy_items and os.path.exists(stage_root):
+                                        for s_root, s_dirs, s_files in os.walk(stage_root):
+                                            for sf in s_files:
+                                                if art_no.lower() in sf.lower() and sf.lower().endswith('.pdf') and not sf.lower().startswith(('bb0_', 'datenblatt_')):
+                                                    try:
+                                                        dwg_parsed = DrawingVisionAgent().parse_drawing_file(os.path.join(s_root, sf), use_vision=False)
+                                                        if dwg_parsed and dwg_parsed.get("items"):
+                                                            assy_items = list(dwg_parsed["items"])
+                                                            break
+                                                    except Exception:
+                                                        pass
+                                            if assy_items:
+                                                break
+                                else:
+                                    # Master Excel BOM exists -> Only cross-enrich existing items with drawing MPNs/MFRs (do not inject phantom pinout/dimension notes)
+                                    for d_att in attachments:
+                                        d_fp = d_att.get("path", "") if isinstance(d_att, dict) else str(d_att)
+                                        d_fn = os.path.basename(d_fp).lower()
+                                        if art_no.lower() in d_fn and d_fn.endswith('.pdf') and not d_fn.startswith(('bb0_', 'datenblatt_')):
+                                            try:
+                                                dwg_parsed = DrawingVisionAgent().parse_drawing_file(d_fp, use_vision=False)
+                                                if dwg_parsed and dwg_parsed.get("items"):
+                                                    dwg_map = {str(di.get("part_number", "")).strip(): di for di in dwg_parsed["items"] if di.get("part_number")}
+                                                    for it in assy_items:
+                                                        p_k = str(it.get("part_number", "")).strip()
+                                                        if p_k in dwg_map:
+                                                            d_it = dwg_map[p_k]
+                                                            if d_it.get("mpn") and not it.get("mpn"):
+                                                                it["mpn"] = d_it["mpn"]
+                                                            if d_it.get("mfr") and (not it.get("mfr") or it.get("mfr") == "Unknown"):
+                                                                it["mfr"] = d_it["mfr"]
+                                            except Exception:
+                                                pass
+
+                                combined_items = assy_items
                                 for idx, it in enumerate(combined_items, start=1):
                                     it["line_item"] = idx
                                     it["eau"] = eau_num
@@ -842,8 +886,29 @@ class MultimodalExtractor:
                         matched_dwg = d_assy
                         break
 
-                if matched_dwg and matched_dwg.get("items") and not e_assy.get("items"):
-                    e_assy["items"] = matched_dwg["items"]
+                if matched_dwg and matched_dwg.get("items"):
+                    if not e_assy.get("items"):
+                        e_assy["items"] = matched_dwg["items"]
+                    else:
+                        # Cross-enrich Excel BOM items with drawing components (MPN, MFR, Evidence)
+                        dwg_items_by_pno = {str(di.get("part_number", "")).strip(): di for di in matched_dwg["items"] if di.get("part_number")}
+                        for it in e_assy.get("items", []):
+                            p_k = str(it.get("part_number", "")).strip()
+                            if p_k in dwg_items_by_pno:
+                                d_it = dwg_items_by_pno[p_k]
+                                # If drawing found a valid MPN, enrich it
+                                if d_it.get("mpn"):
+                                    it["mpn"] = d_it["mpn"]
+                                    if "evidence" in it and "evidence" in d_it and "mpn" in d_it["evidence"]:
+                                        it["evidence"]["mpn"] = d_it["evidence"]["mpn"]
+                                # If drawing found manufacturer, enrich it
+                                if d_it.get("mfr") and (not it.get("mfr") or it.get("mfr") == "Unknown"):
+                                    it["mfr"] = d_it["mfr"]
+                                    if "evidence" in it and "evidence" in d_it and "mfr" in d_it["evidence"]:
+                                        it["evidence"]["mfr"] = d_it["evidence"]["mfr"]
+                                # If drawing description has more details, enrich description
+                                if d_it.get("description") and (not it.get("description") or f"Component {p_k}" in str(it.get("description"))):
+                                    it["description"] = d_it["description"]
 
                 if matched_dwg:
                     # Detect conflicts instead of silently overwriting
@@ -1021,10 +1086,9 @@ class MultimodalExtractor:
         alt_path = ""
         try:
             # 1. Dynamic path lookup
-            from agents.evidence_schema import BASE_DIR
             alt_dir = os.path.join(BASE_DIR, "ref", "BOM", "AppData", "Customer Parts - Alternative MPNs")
             if not os.path.exists(alt_dir):
-                alt_dir = os.path.join("D:\\RadysisAsia MockServer", "BOM", "AppData", "Customer Parts - Alternative MPNs")
+                alt_dir = os.path.join(BASE_DIR, "test_server_mock", "BOM", "AppData", "Customer Parts - Alternative MPNs")
             safe_cust = customer_name.replace(' ', '_').replace('/', '_').replace('\\', '_')
             cand = os.path.join(alt_dir, safe_cust, "Alternative_MPNs.json")
             if os.path.exists(cand):

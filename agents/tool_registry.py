@@ -1069,8 +1069,8 @@ class ContinuumXToolRegistry:
                 if em and "@" in em and em not in to_emails and em not in cc_emails:
                     cc_emails.append(em)
 
-            sender_email = get_user_email(username) or "aitinkteng03@gmail.com"
-            if sender_email and sender_email not in cc_emails and sender_email not in to_emails:
+            sender_email = get_user_email(username) or "maic-demo@continuumx.com.my"
+            if sender_email and sender_email not in to_emails and sender_email not in cc_emails:
                 cc_emails.append(sender_email)
 
             # Fallback if no target recipients configured: send directly to dispatcher/admin
@@ -1124,7 +1124,7 @@ class ContinuumXToolRegistry:
 
         user_dir = get_user_directory()
         available = {n: info["email"].strip() for n, info in user_dir.items() if info.get("email")}
-        sender_email = get_user_email(username) or "aitinkteng03@gmail.com"
+        sender_email = get_user_email(username) or "maic-demo@continuumx.com.my"
 
         for rfq_id in rfq_ids:
             eligible, reason = cls.check_tool_eligibility(f"{dept}.execute_system_dispatch", rfq_id, username)
@@ -1284,7 +1284,7 @@ class ContinuumXToolRegistry:
             target_pics = get_system_pics(target_stage)
             to_names = target_pics.get("to", [])
             to_emails = [available.get(n, get_user_email(n)) for n in to_names if (available.get(n) or get_user_email(n))]
-            sender_email = get_user_email(requested_by) or "aitinkteng03@gmail.com"
+            sender_email = get_user_email(requested_by) or "maic-demo@continuumx.com.my"
             if not to_emails:
                 to_emails = [sender_email]
             cc_emails = [sender_email] if sender_email not in to_emails else []
