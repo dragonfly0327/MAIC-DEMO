@@ -1,0 +1,9 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.env
+
+# Runtime event backlog (persisted logs, not source)
+data/
