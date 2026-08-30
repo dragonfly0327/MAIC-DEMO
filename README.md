@@ -200,3 +200,16 @@ python test_email_rfq_pipeline.py
 *   **[Hackathon Technical Blueprint (PDF)](HACKATHON_TECHNICAL_ARCHITECTURE.pdf)**: Pitch-ready executive architecture document.
 *   **[Agent Tool Registry Audit](docs/AGENT_TOOL_REGISTRY_AUDIT.md)**: 5-tier safe execution tool catalog and permission matrix.
 *   **[Orchestrator Design](docs/ORCHESTRATOR_DESIGN.md)**: State machine, dependency graph, and approval gate flow.
+
+---
+
+## 6. License & Copyright Notice
+
+This repository and its contents are proprietary and subject to a **Restricted Evaluation License** — see the [LICENSE](LICENSE) file for complete terms.
+
+> **IMPORTANT**: This codebase and its architectural artifacts are made publicly accessible **solely and exclusively for the MAIC Nexus Challenge artifact review and judging process**. Cloning, reproducing, modifying, redistributing, or deploying this repository for personal, commercial, or organizational use is strictly prohibited.
+
+```text
+Copyright (c) 2025-2026 ContinuumX Platform. All Rights Reserved.
+```
+

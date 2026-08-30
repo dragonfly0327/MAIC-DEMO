@@ -1,0 +1,27 @@
+# Proprietary & Restricted Evaluation License
+
+Copyright (c) 2025-2026 ContinuumX Platform. All Rights Reserved.
+
+---
+
+### IMPORTANT NOTICE: RESTRICTED EVALUATION ONLY
+
+This repository, including all source code, architecture documentation, model prompts, database schemas, and associated artifacts, is made publicly accessible **SOLELY AND EXCLUSIVELY** for the purpose of artifact review, judging, and evaluation in connection with the **MAIC Nexus Challenge**.
+
+### TERMS AND RESTRICTIONS:
+
+1. **Evaluation Use Only**: 
+   Access to this repository is granted strictly for reviewing, assessing, and evaluating the project as a competition submission artifact. 
+
+2. **No Reproduction or Cloning for Own Use**: 
+   Cloning, copying, reproducing, redistributing, mirroring, sublicensing, or deploying this repository—or any portion thereof—for personal, academic, organizational, or commercial use is **STRICTLY PROHIBITED**.
+
+3. **No Derivative Works or Extraction**: 
+   You may not modify, adapt, translate, reverse engineer, decompile, extract, or create derivative works from the platform code, agents, prompts, or proprietary architectural specifications.
+
+4. **Intellectual Property**: 
+   All rights, titles, and interests in and to this software, designs, workflows, and documentation remain the exclusive intellectual property of the ContinuumX team and its authors.
+
+---
+
+THE SOFTWARE AND ARTIFACTS ARE PROVIDED "AS IS", FOR ARTIFACT REVIEW PURPOSES ONLY, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
